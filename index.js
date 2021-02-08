@@ -67,7 +67,10 @@ function viewFunc() {
         })
         .then(function (answer) {
             if (answer.viewData === "EMPLOYEE") {
-                empView();
+               DB.viewEmployee().then(function(res){
+                   console.log(res)
+               })
+               start()
             }
             else if (answer.viewData === "ROLE") {
                 DB.viewRole().then(function (res) {

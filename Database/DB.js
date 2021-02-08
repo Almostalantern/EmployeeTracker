@@ -10,6 +10,9 @@ class DB {
    viewRole(){
        return this.connection.query("SELECT * FROM title")
    }
+   viewEmployee(){
+       return this.connection.query("SELECT * FROM employee")
+   }
    createDepartment(name){
        return this.connection.query("INSERT INTO department SET ?", name)
    }
