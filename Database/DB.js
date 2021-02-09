@@ -1,9 +1,9 @@
+const { start } = require("repl");
 const connection = require("./connection");
 class DB {
     constructor(connection) {
         this.connection = connection;
-
-    }
+   }
    viewDepartments(){
        return this.connection.query("SELECT * FROM department")
    }
@@ -14,7 +14,13 @@ class DB {
        return this.connection.query("SELECT * FROM employee")
    }
    createDepartment(name){
-       return this.connection.query("INSERT INTO department SET ?", name)
+       return this.connection.query("INSERT INTO department SET department_name = ? ", name)
    }
-} 
-module.exports = new DB(connection);
+   createRole(roleObj){
+       return this.connection.query("INSERT INTO title SET ?", roleObj)
+    }
+    deleteDepartment(id){
+        return this.connection.query("DELETE FROM department WHERE id = ?", id)
+    }
+}
+ module.exports = new DB(connection)

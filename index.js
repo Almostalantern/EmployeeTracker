@@ -9,7 +9,7 @@ function start() {
             name: "empTrack",
             type: "list",
             message: "Would you like to [ADD] an employee, role or department? [VIEW] Employees, role or department or [UPDATE] an employee, role, or department?",
-            choices: ["ADD", "VIEW", "UPDATE", "GOODBYE"]
+            choices: ["ADD", "VIEW", "UPDATE", "DELETE", "GOODBYE"]
 
         })
         .then(function (answer) {
@@ -22,7 +22,10 @@ function start() {
             else if (answer.empTrack === "UPDATE") {
                 updateFunc();
             }
-            else {
+            else if (answer.empTrack === "DELETE"){
+                deleteFunc();
+            }
+            else if (answer.empTrack === "GOODBYE") {
                 connection.end();
             }
         });
@@ -40,8 +43,9 @@ function addFunc() {
                 empAdd();
             }
             else if (answer.addData === "ROLE") {
-                roleAdd();
+                addRole()
             }
+            
             else if (answer.addData === "DEPARTMENT") {
                 inquirer.prompt([{
                     type: "input",
@@ -49,7 +53,7 @@ function addFunc() {
                     message: "What is this department called?"
                 }]).then(function (answer) {
                     DB.createDepartment(answer.departmentName)
-                        .then(console.log("Created New Department:" + answer.departmentName));
+                        .then(console.log("Created new department:" + answer.departmentName));
                 })
             }
             else {
@@ -112,6 +116,79 @@ function updateFunc() {
             }
         })
 }
-
+function deleteFunc() {
+    inquirer
+        .prompt({
+            name: "deleteData",
+            type: "list",
+            message: "Would you like to delete an [EMPLOYEE], [ROLE], [DEPARTMENT], or go back?",
+            choices: ["EMPLOYEE", "ROLE", "DEPARTMENT", "GO BACK"]
+        })
+        .then(function (answer) {
+            if (answer.deleteData === "EMPLOYEE") {
+                //empAdd();
+            }
+            else if (answer.deleteData === "ROLE") {
+                addRole()
+            }
+            
+            else if (answer.deleteData === "DEPARTMENT") {
+                deleteDepartment();
+            }
+            else {
+                start();
+            }
+        })
+}
+async function addRole() {
+    const departments = await DB.viewDepartments();
+    const deptArray = departments.map(({ id, department_name }) => ({
+        name: department_name,
+        value: id
+    }));
+    inquirer.prompt([{
+        type:"list",
+        name: "departmentID",
+        message:"what is the department for this role?",
+        choices: deptArray
+    },
+    {
+        type:"input",
+        name:"roleName",
+        message:"What is this role called?"
+    },
+    {
+        type:"input",
+        name:"salary",
+        message:"What salary does this role have?"
+    }
+]).then( async function(res) {
+    const newRole = {
+        department_id: res.departmentID,
+        job_title: res.roleName,
+        salary: res.salary
+    }
+    await DB.createRole(newRole)
+    console.log(res)
+})
+}
+async function deleteDepartment(){
+    const departments = await DB.viewDepartments();
+    const deptArray = departments.map(({ id, department_name }) => ({
+        name: department_name,
+        value: id
+    }));
+    inquirer.prompt([{
+        type: "list",
+        name: "department_id",
+        message: "Which department would you like to delete?",
+        choices: deptArray
+    }]).then(function (res){
+        console.log(res)
+        DB.deleteDepartment(res.department_id).then(function(res2){
+            console.log("department deleted")
+        })
+    })
+}
 
 start();

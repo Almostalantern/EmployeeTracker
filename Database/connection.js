@@ -6,13 +6,13 @@ var connection = mysql.createConnection({
     host: "localhost",
     port: 3306,
     user: "root",
-    password:"B1gB@dB3llig3r@nt",
+    password: "B1gB@dB3llig3r@nt",
     database: "employees_DB"
 });
 
 connection.connect(function (err) {
     if (err) {console.log(err.stack);
-    return ;
+    return err
     }
     console.log("connected as:"+ connection.threadId);
 });
