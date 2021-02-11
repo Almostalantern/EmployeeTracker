@@ -22,5 +22,8 @@ class DB {
     deleteDepartment(id){
         return this.connection.query("DELETE FROM department WHERE id = ?", id)
     }
+    deleteRole(id){
+        return this.connection.query("DELETE FROM title WHERE id = ?", id)
+    }
 }
  module.exports = new DB(connection)

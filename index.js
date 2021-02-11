@@ -129,7 +129,7 @@ function deleteFunc() {
                 //empAdd();
             }
             else if (answer.deleteData === "ROLE") {
-                addRole()
+                deleteRole()
             }
             
             else if (answer.deleteData === "DEPARTMENT") {
@@ -187,6 +187,27 @@ async function deleteDepartment(){
         console.log(res)
         DB.deleteDepartment(res.department_id).then(function(res2){
             console.log("department deleted")
+            start();
+        })
+    })
+}
+
+async function deleteRole(){
+    const roles = await DB.viewRole();
+    const roleArray = roles.map(({ id, job_title, salary})=>({
+       name: job_title,
+       value: id 
+    }));
+    inquirer.prompt([{
+        type: "list",
+        name:"job_title",
+        message: "Which job would you like to delete?",
+        choices: roleArray
+    }]).then(function(res){
+        console.log(res)
+        DB.deleteRole(res.job_title).then(function(res2){
+            console.log("job deleted")
+            start();
         })
     })
 }
