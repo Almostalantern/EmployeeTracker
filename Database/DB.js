@@ -31,5 +31,8 @@ class DB {
     deleteEmployee(id){
         return this.connection.query("DELETE FROM employee WHERE id = ?", id)
     }
+    updateDepartment(updatedDep){
+        return this.connection.query("UPDATE department SET department_name WHERE id =? ", updatedDep)
+    }
 }
  module.exports = new DB(connection)

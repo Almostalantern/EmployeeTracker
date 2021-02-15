@@ -9,8 +9,8 @@ function start() {
         .prompt({
             name: "empTrack",
             type: "list",
-            message: "Would you like to [ADD] an employee, role or department? [VIEW] Employees, role or department or [UPDATE] an employee, role, or department?",
-            choices: ["ADD", "VIEW", "UPDATE", "DELETE", "GOODBYE"]
+            message: "Would you like to [ADD] an employee, role or department or [VIEW] Employees, role or department?",
+            choices: ["ADD", "VIEW", "DELETE", "GOODBYE"]
 
         })
         .then(function (answer) {
@@ -19,9 +19,6 @@ function start() {
             }
             else if (answer.empTrack === "VIEW") {
                 viewFunc();
-            }
-            else if (answer.empTrack === "UPDATE") {
-                updateFunc();
             }
             else if (answer.empTrack === "DELETE"){
                 deleteFunc();
@@ -94,29 +91,7 @@ function viewFunc() {
             }
         })
 }
-function updateFunc() {
-    inquirer
-        .prompt({
-            name: "updateData",
-            type: "list",
-            message: "Would you like to update an [EMPLOYEE], [ROLE], [DEPARTMENT], or go back?",
-            choices: ["EMPLOYEE", "ROLE", "DEPARTMENT", "GO BACK"]
-        })
-        .then(function (answer) {
-            if (answer.updateData === "EMPLOYEE") {
-                empUpdate();
-            }
-            else if (answer.updateData === "ROLE") {
-                roleUpdate();
-            }
-            else if (answer.updateDat === "DEPARTMENT") {
-                depUpdate();
-            }
-            else {
-                start();
-            }
-        })
-}
+
 function deleteFunc() {
     inquirer
         .prompt({
@@ -171,18 +146,10 @@ async function addRole() {
     }
     await DB.createRole(newRole)
     console.log(res)
+    start();
 })
 }
-let manArr = [];
-function manSelect() {
-  connection.query("SELECT first_name, last_name FROM employee WHERE manager_id IS NULL", function(err, res) {
-    if (err) throw err
-    for (var i = 0; i < res.length; i++) {
-      manArr.push(res[i].first_name);
-    }
-  })
-  return manArr;
-}
+
 async function empAdd(){
     const roles = await DB.viewRole();
     const roleArray = roles.map(({id, job_title})=>({
@@ -205,12 +172,7 @@ async function empAdd(){
         name:"last_name",
         message:"What is this employee's last name?"
     },
-    {
-        type:"list",
-        name:"manager_id",
-        message:"Who is this employee's manager?",
-        choices: manSelect()
-    }
+   
 ]).then( async function(res) {
     const newEmp = {
         title_id: res.titleID,
@@ -218,8 +180,9 @@ async function empAdd(){
         last_name: res.last_name,
         manager_id: res.manager_id
     }
-    await DB.createRole(newEmp)
+    await DB.createEmployee(newEmp)
     console.log(res)
+    start();
 })
 }
 async function deleteDepartment(){
@@ -279,7 +242,6 @@ async function empDelete(){
         })
     })
 }
-
 
 
 start();
