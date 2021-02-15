@@ -19,11 +19,17 @@ class DB {
    createRole(roleObj){
        return this.connection.query("INSERT INTO title SET ?", roleObj)
     }
+    createEmployee(empObj){
+        return this.connection.query("INSERT INTO employee SET ?", empObj)
+    }
     deleteDepartment(id){
         return this.connection.query("DELETE FROM department WHERE id = ?", id)
     }
     deleteRole(id){
         return this.connection.query("DELETE FROM title WHERE id = ?", id)
+    }
+    deleteEmployee(id){
+        return this.connection.query("DELETE FROM employee WHERE id = ?", id)
     }
 }
  module.exports = new DB(connection)

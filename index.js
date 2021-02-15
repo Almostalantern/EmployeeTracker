@@ -1,7 +1,8 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
 
-const DB = require("./Database/DB")
+const DB = require("./Database/DB");
+const { listenerCount } = require("./Database/connection");
 
 function start() {
     inquirer
@@ -126,7 +127,7 @@ function deleteFunc() {
         })
         .then(function (answer) {
             if (answer.deleteData === "EMPLOYEE") {
-                //empAdd();
+                empDelete();
             }
             else if (answer.deleteData === "ROLE") {
                 deleteRole()
@@ -172,6 +173,55 @@ async function addRole() {
     console.log(res)
 })
 }
+let manArr = [];
+function manSelect() {
+  connection.query("SELECT first_name, last_name FROM employee WHERE manager_id IS NULL", function(err, res) {
+    if (err) throw err
+    for (var i = 0; i < res.length; i++) {
+      manArr.push(res[i].first_name);
+    }
+  })
+  return manArr;
+}
+async function empAdd(){
+    const roles = await DB.viewRole();
+    const roleArray = roles.map(({id, job_title})=>({
+        name: job_title,
+        value: id
+    }));
+    inquirer.prompt([{
+        type: "list",
+        name: "titleID",
+        message: "Which job will this employee have?",
+        choices: roleArray
+    },
+    {
+        type: "input",
+        name:"first_name",
+        message: "What is this employee's first name?"
+    },
+    {
+        type:"input",
+        name:"last_name",
+        message:"What is this employee's last name?"
+    },
+    {
+        type:"list",
+        name:"manager_id",
+        message:"Who is this employee's manager?",
+        choices: manSelect()
+    }
+]).then( async function(res) {
+    const newEmp = {
+        title_id: res.titleID,
+        first_name: res.first_name,
+        last_name: res.last_name,
+        manager_id: res.manager_id
+    }
+    await DB.createRole(newEmp)
+    console.log(res)
+})
+}
 async function deleteDepartment(){
     const departments = await DB.viewDepartments();
     const deptArray = departments.map(({ id, department_name }) => ({
@@ -191,10 +241,9 @@ async function deleteDepartment(){
         })
     })
 }
-
 async function deleteRole(){
     const roles = await DB.viewRole();
-    const roleArray = roles.map(({ id, job_title, salary})=>({
+    const roleArray = roles.map(({ id, job_title})=>({
        name: job_title,
        value: id 
     }));
@@ -211,5 +260,26 @@ async function deleteRole(){
         })
     })
 }
+async function empDelete(){
+    const emps = await DB.viewEmployee();
+    const empArray = emps.map(({ id, first_name, last_name})=>({
+       name: first_name + last_name,
+       value: id 
+    }));
+    inquirer.prompt([{
+        type: "list",
+        name:"Emp_list",
+        message: "Which job would you like to delete?",
+        choices: empArray
+    }]).then(function(res){
+        console.log(res)
+        DB.deleteEmployee(res.Emp_list).then(function(res2){
+            console.log("Employee deleted")
+            start();
+        })
+    })
+}
+
+
 
 start();
